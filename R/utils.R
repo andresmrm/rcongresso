@@ -208,6 +208,12 @@ if (getRversion() >= "2.15.1")  utils::globalVariables(".")
     dplyr::ungroup()
 }
 
+.fetch_using_id_senado <- function(id, API_path, asList = FALSE){
+    json_data <- NULL
+    url <- paste0(.SENADO_API_LINK, API_path, "/", id)
+    json_data <- jsonlite::fromJSON(url, flatten = T)
+}
+
 #' Abstracts the pagination logic. There are three situations on a request from the API:
 #' 1. The items number is less than the max by request, that is 100.
 #' 2. The items number is divisible by 100.

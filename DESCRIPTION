@@ -20,7 +20,8 @@ Imports: httr,
     dplyr,
     tibble,
     tidyr,
-    stringr
+    stringr,
+    xml2
 Suggests: testthat,
     compare,
     readr,

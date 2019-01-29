@@ -7,14 +7,17 @@
 .WARNING_PROPOSICAO_ID <- "Pode haver campos incorretos na proposicao. Verifique o tipo, numero e ano."
 .WARNING_SIGLA_PARTIDO <- "Algumas siglas podem estar incorretas."
 
-# Paths
+# Paths Camara
 .PROPOSICOES_PATH <- "/api/v2/proposicoes"
 .VOTACOES_PATH <- "/api/v2/votacoes"
 .DEPUTADOS_PATH <- "/api/v2/deputados"
-.RELATORIA_SENADO_PATH <- "/dadosabertos/materia/relatorias/"
 .PARTIDOS_PATH <- "/api/v2/partidos"
 .TIPOS_PROPOSICOES_PATH <- "/api/v2/referencias/tiposProposicao"
 .ORGAOS_CAMARA_PATH <- "/api/v2/orgaos"
+
+#Paths Senado
+.RELATORIA_SENADO_PATH <- "/dadosabertos/materia/relatorias/"
+.TRAMITACAO_SENADO_PATH <- "/dadosabertos/materia/movimentacoes"
 
 # Link do repositório do rcongresso
 .RCONGRESSO_LINK <- "https://github.com/analytics-ufcg/rcongresso"

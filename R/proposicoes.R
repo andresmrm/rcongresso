@@ -129,6 +129,15 @@ fetch_tramitacao <- function(id_prop){
         .coerce_types(.COLNAMES_TRAMITACOES)
 }
 
+fetch_tramitacao_senado <- function(id_prop) {
+  tramitacao <- .fetch_using_id_senado(id_prop, .TRAMITACAO_SENADO_PATH)
+  tramitacao %<>%
+    magrittr::extract2("MovimentacaoMateria") %>%
+    magrittr::extract2("Materia") %>%
+    magrittr::extract2("Tramitacoes") %>%
+    magrittr::extract2("Tramitacao")
+}
+
 #' @title Retrieves the proposition ID from its type, number and year
 #' @description The function can be used to fetch a vector of ids as well, in case of many propositions.
 #' @param tipo Proposition type (i.e., PEC, PL, PDC)
