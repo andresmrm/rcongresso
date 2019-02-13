@@ -4,6 +4,7 @@
 #' @export
 fetch_orgaos_camara <- function() {
   .camara_api(.ORGAOS_FILE_CAMARA_PATH) %>%
+    dplyr::mutate(idOrgao = stringr::str_extract(uri, "([0-9]+)$")) %>%
     .assert_dataframe_completo(.COLNAMES_ORGAOS) %>%
     .coerce_types(.COLNAMES_ORGAOS)
 }
@@ -21,7 +22,7 @@ fetch_orgao_camara <- function(sigla = NULL) {
         .coerce_types(.COLNAMES_ORGAO)
 }
 
-#' @title Retorna a composição da comissão da camara
+#' @title Fetchs q a composição da comissão da camara
 #' @description Retorna um dataframe contendo os membros da comissão
 #' @param sigla_comissao Sigla da comissão da Camara
 #' @return dataframe
@@ -32,66 +33,44 @@ fetch_composicao_comissoes_camara <- function(sigla_comissao) {
     fetch_orgaos_camara() %>%
     dplyr::mutate_all(as.character) %>%
     dplyr::filter(trimws(sigla) == toupper(sigla_comissao)) %>%
-    dplyr::select(orgao_id) %>% head(1)
+    dplyr::select(idOrgao) %>% head(1)
   
+  df <- stats::setNames(
+      data.frame(
+        matrix(ncol = length(.COLNAMES_COMPOSICAO_COMISSOES_CAMARA), nrow = 0)),
+      names(.COLNAMES_COMPOSICAO_COMISSOES_CAMARA)
+    )
   if (nrow(orgaos_camara) == 0) {
-    warning("Comissão não encontrada")
-    n <- tibble::frame_data(~ cargo, ~ id, ~ partido, ~ uf, ~ situacao, ~ nome, ~ sigla, ~ casa)
-    return(n)
+    warning("Comissao nao encontrada")
+  } else {
+    url <- paste0(.CAMARA_WEBSITE_LINK, .COMPOSICAO_COMISSOES_CAMARA_PATH, orgaos_camara[[1]])
+    
+    membros <-
+      .get_from_url(url)%>%
+      .get_xml()%>%
+      jsonlite::toJSON() %>%
+      jsonlite::fromJSON() %>%
+      magrittr::extract2('membros') %>%
+      tibble::as.tibble() %>%
+      t() %>%
+      as.data.frame() %>%
+      tibble::rownames_to_column("VALUE")
+    
+    if (nrow(membros) != 0) {
+      df <- membros
+      new_names <- c('cargo', 'id', 'nome', 'partido', 'uf', 'situacao')
+    
+      names(df) <- new_names
+      df %>% 
+        rowwise() %>% 
+        dplyr::mutate(partido = ifelse(length(partido) == 0, "", partido)) %>% 
+        dplyr::mutate(uf = ifelse(length(uf) == 0, "", uf)) %>% 
+        dplyr::mutate(id = ifelse(length(id) == 0, "", id)) %>% 
+        tidyr::unnest() %>%
+        dplyr::arrange(nome)
+    }
   }
   
-  url <- paste0('http://www.camara.leg.br/SitCamaraWS/Orgaos.asmx/ObterMembrosOrgao?IDOrgao=', orgaos_camara[[1]])
-  
-  eventos_list <-
-    XML::xmlParse(url) %>%
-    XML::xmlToList()
-  
-  df <-
-    eventos_list %>%
-    jsonlite::toJSON() %>%
-    jsonlite::fromJSON() %>%
-    magrittr::extract2('membros') %>%
-    tibble::as.tibble() %>%
-    t() %>%
-    as.data.frame() %>%
-    tibble::rownames_to_column("VALUE")
-  
-  if (nrow(df) == 0) {
-    return(tibble::frame_data(~ cargo, ~ id, ~ nome, ~ partido, ~ uf, ~ situacao))
-  }
-  
-  new_names <- c('cargo', 'id', 'nome', 'partido', 'uf', 'situacao')
-  
-  names(df) <- new_names
-  df %>% 
-    rowwise() %>% 
-    dplyr::mutate(partido = ifelse(length(partido) == 0, "", partido)) %>% 
-    dplyr::mutate(uf = ifelse(length(uf) == 0, "", uf)) %>% 
-    dplyr::mutate(id = ifelse(length(id) == 0, "", id)) %>% 
-    tidyr::unnest() %>%
-    dplyr::arrange(nome)
-}
-
-#' @title Baixa os órgãos na câmara
-#' @description Retorna um dataframe contendo os órgãos da câmara
-#' @return Dataframe contendo os órgãos da Câmara
-#' @importFrom RCurl getURL
-fetch_orgaos_camara <- function(){
-  url <- RCurl::getURL('http://www.camara.leg.br/SitCamaraWS/Orgaos.asmx/ObterOrgaos')
-  
-  orgaos_list <-
-    XML::xmlParse(url) %>%
-    XML::xmlToList()
-  
-  df <-
-    orgaos_list %>%
-    jsonlite::toJSON() %>%
-    jsonlite::fromJSON() %>%
-    tibble::as.tibble() %>%
-    t() %>%
-    as.data.frame()
-  
-  names(df) <- c("orgao_id", "tipo_orgao_id", "sigla", "descricao")
-  
-  return(df)
+  df %>% .assert_dataframe_completo(.COLNAMES_ORGAOS) %>%
+  .coerce_types(.COLNAMES_ORGAOS)
 }
