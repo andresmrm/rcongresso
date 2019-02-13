@@ -3,7 +3,8 @@ context("Orgãos")
 setup <- function(){
   orgaos_camara <<- fetch_orgaos_camara()
   comissao_capadr <<- fetch_orgao_camara("CAPADR")
-
+  membros_capadr <<- fetch_composicao_comissoes_camara("CAPADR")
+  
   return(TRUE)
 }
 
@@ -30,6 +31,10 @@ test <- function(){
 
   test_that("Not Empty", {
     expect_true(nrow(comissao_capadr) != 0)
+  })
+  
+  test_that("Composição Comissão have right number rows", {
+    expect_true(nrow(membros_capadr) == 0)
   })
 }
 

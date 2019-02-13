@@ -22,9 +22,9 @@ fetch_orgao_camara <- function(sigla = NULL) {
         .coerce_types(.COLNAMES_ORGAO)
 }
 
-#' @title Fetchs q a composição da comissão da camara
-#' @description Retorna um dataframe contendo os membros da comissão
-#' @param sigla_comissao Sigla da comissão da Camara
+#' @title Fetchs the commission composition of the camera
+#' @description Returns a dataframe containing the comission's members
+#' @param sigla_comissao Abreviation for commission Camara
 #' @return dataframe
 #' @examples 
 #' fetch_composicao_comissoes_camara('cmads')
@@ -73,4 +73,6 @@ fetch_composicao_comissoes_camara <- function(sigla_comissao) {
   
   df %>% .assert_dataframe_completo(.COLNAMES_ORGAOS) %>%
   .coerce_types(.COLNAMES_ORGAOS)
+  
+  df
 }
