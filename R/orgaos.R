@@ -24,7 +24,7 @@ fetch_orgao_camara <- function(sigla = NULL) {
 
 #' @title Fetchs the commission composition of the camera
 #' @description Returns a dataframe containing the comission's members
-#' @param sigla_comissao Abreviation for commission Camara
+#' @param sigla_comissao Acronym for commission Camara
 #' @return dataframe
 #' @examples 
 #' fetch_composicao_comissoes_camara('cmads')
